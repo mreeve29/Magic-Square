@@ -3,17 +3,18 @@ import javax.swing.*;
 
 public class MagicSquareGUI extends GBFrame{
 
-	IntegerField numField = addIntegerField(0,1,1,1,1);
-	JButton generateSquareButton = addButton("Generate Square",2,1,1,1);
+	JButton generateSquareButton = addButton("Generate Square",1,1,1,1);
+	JButton checkSquareButton = addButton("Check Square",2,1,1,1);
 	
 	public MagicSquareGUI() {
 	}
 	
+	
 	public void buttonClicked(JButton button) {
 		if(button == generateSquareButton) {
 			GenerateDialog gen = new GenerateDialog(this);
-		}else if(button == null) {
-			
+		}else if(button == checkSquareButton) {
+			CheckSquareDialog checkDialog = new CheckSquareDialog(this);
 		}
 	}
 	
