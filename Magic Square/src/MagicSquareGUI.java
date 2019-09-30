@@ -4,15 +4,16 @@ import javax.swing.*;
 public class MagicSquareGUI extends GBFrame{
 
 	IntegerField numField = addIntegerField(0,1,1,1,1);
-	JButton calculateButton = addButton("Go",2,1,1,1);
+	JButton generateSquareButton = addButton("Generate Square",2,1,1,1);
 	
 	public MagicSquareGUI() {
 	}
 	
 	public void buttonClicked(JButton button) {
-		if(button == calculateButton) {
-			SquareGenerator g = new SquareGenerator(numField.getNumber());
-			System.out.println(g.getSquare());
+		if(button == generateSquareButton) {
+			GenerateDialog gen = new GenerateDialog(this);
+		}else if(button == null) {
+			
 		}
 	}
 	

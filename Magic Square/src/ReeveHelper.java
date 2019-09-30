@@ -144,4 +144,12 @@ public class ReeveHelper {
 		return rand;
 	}
 	
+	public static boolean isEven(int x) {
+		if(x % 2 == 0) {
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
 }

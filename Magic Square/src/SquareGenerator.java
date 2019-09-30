@@ -104,7 +104,7 @@ public class SquareGenerator {
 		return average;
 	}
 	
-	public String getSquare() {
+	public String getSquareString() {
 		String str = "";
 		for(int i = 0; i < num; i++) {
 			for(int j = 0; j < num; j++) {
@@ -113,6 +113,10 @@ public class SquareGenerator {
 			str += '\n';
 		}
 		return str;
+	}
+	
+	public int[][] getSquareArray(){
+		return square;
 	}
 	
 	
