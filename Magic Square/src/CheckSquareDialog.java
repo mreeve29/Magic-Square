@@ -33,9 +33,7 @@ public class CheckSquareDialog extends GBDialog{
 	private KeyListener textFieldKL = new KeyListener() {
 
 		@Override
-		public void keyTyped(KeyEvent e) {
-			
-		}
+		public void keyTyped(KeyEvent e) {}
 
 		@Override
 		public void keyPressed(KeyEvent e) {}
@@ -53,8 +51,6 @@ public class CheckSquareDialog extends GBDialog{
 		}
 		
 	};
-	
-
 	
 	public CheckSquareDialog(JFrame parent) {
 		super(parent);	
@@ -74,14 +70,13 @@ public class CheckSquareDialog extends GBDialog{
 		fieldArr = new JTextField[size][size];
 		for(int i = 0; i < size; i++) {
 			for(int j = 0; j < size; j++) {
-				//JTextField temp = addTextField(i + " " + j,j+2,i+2,1,1);
 				JTextField temp = addTextField("",j+2,i+2,1,1);
 				temp.addKeyListener(textFieldKL);
 				fieldArr[i][j] = temp;
 			}
 		}
-	
 		
+		String base = Format.justify('c', "0", 10);
 		//Labels
 		rowLabels = new JLabel[size];
 		columnLabels = new JLabel[size];
@@ -89,7 +84,7 @@ public class CheckSquareDialog extends GBDialog{
 		int bottom = 2;
 		for(int i = 0; i < columnLabels.length; i++) {
 			JLabel temp = null;
-			temp = addLabel("column",size+2,bottom,1,1);
+			temp = addLabel(base,size+2,bottom,1,1);
 			bottom++;
 			temp.setOpaque(true);
 			temp.setBackground(Color.RED);
@@ -100,7 +95,7 @@ public class CheckSquareDialog extends GBDialog{
 		int top = 2;
 		for(int i = 0; i < rowLabels.length; i++) {
 			JLabel temp = null;
-			temp = addLabel("row",top,size+2,1,1);
+			temp = addLabel(base,top,size+2,1,1);
 			top++;
 			temp.setOpaque(true);
 			temp.setBackground(Color.RED);
@@ -110,19 +105,15 @@ public class CheckSquareDialog extends GBDialog{
 		for(int i = 0; i < diagonalLabels.length; i++) {
 			JLabel temp = null;
 			if(i == 0) {
-				temp = addLabel("total1",1,size+2,1,1);
+				temp = addLabel(base,1,size+2,1,1);
 			}else if(i == 1) {
-				temp = addLabel("total2",size+2,size+2,1,1);
+				temp = addLabel(base,size+2,size+2,1,1);
 			}
 			temp.setOpaque(true);
 			temp.setBackground(Color.RED);
 			diagonalLabels[i] = temp;
 		}
-		
-		
-		
 		setWindowSize(size);
-		
 	}
 	
 	private void setWindowSize(int size) {
@@ -155,6 +146,7 @@ public class CheckSquareDialog extends GBDialog{
 		
 	}
 	private void resetTable() {
+		//remove TextFields
 		for(int i = 0; i < fieldArr.length; i++) {
 			for(int j = 0; j < fieldArr.length; j++) {
 				if(fieldArr[i][j] != null) {
@@ -164,6 +156,7 @@ public class CheckSquareDialog extends GBDialog{
 		}
 		fieldArr = null;
 		
+		//remove Labels
 		for(int i = 0; i < columnLabels.length; i++) {
 			remove(columnLabels[i]);
 		}
@@ -204,8 +197,6 @@ public class CheckSquareDialog extends GBDialog{
 				updateTotalLabel(columnLabels[i],total,magicNum);
 			}
 		}
-		
-		
 		
 		//diagonal checks
 		int diagTopLeftBottomRightTotal = getTotalDiag(1);

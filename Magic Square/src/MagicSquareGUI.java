@@ -6,10 +6,6 @@ public class MagicSquareGUI extends GBFrame{
 	JButton generateSquareButton = addButton("Generate Square",1,1,1,1);
 	JButton checkSquareButton = addButton("Check Square",2,1,1,1);
 	
-	public MagicSquareGUI() {
-	}
-	
-	
 	public void buttonClicked(JButton button) {
 		if(button == generateSquareButton) {
 			GenerateDialog gen = new GenerateDialog(this);

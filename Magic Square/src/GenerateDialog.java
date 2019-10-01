@@ -3,7 +3,8 @@ import javax.swing.*;
 public class GenerateDialog extends GBDialog{
 
 	IntegerField numField = addIntegerField(0,1,1,1,1);
-	JButton generateButton = addButton("Generate",2,1,1,1);
+	JButton generateButton = addButton("Generate",1,1,1,1);
+	JTextArea resultTA = addTextArea("",2,1,1,1);
 	
 	int[][] square;
 	
@@ -22,6 +23,7 @@ public class GenerateDialog extends GBDialog{
 			}else {
 				SquareGenerator g = new SquareGenerator(size);
 				square = g.getSquareArray();
+				resultTA.setText(g.getSquareString());
 				table = new JTable(size,size);
 				table.setBounds(30, 30, 200, 300);
 			}
@@ -33,6 +35,7 @@ public class GenerateDialog extends GBDialog{
 	
 	public GenerateDialog(JFrame parent) {
 		super(parent);
+		resultTA.setEditable(false);
 		this.setTitle("Generate Button");
 		this.setSize(400,400);
 		this.setVisible(true);
