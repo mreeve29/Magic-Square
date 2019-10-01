@@ -97,6 +97,17 @@ public class ReeveHelper {
 		}
 	}
 	
+	public static boolean isValidNumber(JTextField field) {
+		boolean valid = true;
+		try {
+			Integer.parseInt(field.getText());
+		}catch (Exception e) {
+			valid = false;
+		}
+		return valid;
+	}
+	
+	
 	public static boolean isBlank(String str) {
 		if(str == "" || str.isEmpty()) {
 			return true;

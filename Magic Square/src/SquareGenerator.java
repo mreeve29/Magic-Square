@@ -3,14 +3,12 @@ import BreezySwing.Format;
 public class SquareGenerator {
 	private int num;
 	private int[][] square;
-	private int magic;
 	private int[] highs;
 	private int[] lows;
 	private int[] between;
 	
 	public SquareGenerator(int x) {
 		num = x;
-		magic = getMagicNumber(num);
 		square = new int[x][x];
 		highs = getHighs();
 		lows = getLows();
@@ -84,24 +82,6 @@ public class SquareGenerator {
 			square[x][y] = between[i];
 			
 		}
-	}
-	
-	
-	
-	private int getMagicNumber(int x) {
-		int high = x*x;
-		int low = 1;
-		int highx = 0;
-		for(int i = 0; i <= x-1; i++) {
-			highx += high - i;
-		}
-		int lowx = 1;
-		for(int i = 0; i <= x-1; i++) {
-			lowx += low + i;
-		}
-		int average = (highx + lowx)/2;
-		
-		return average;
 	}
 	
 	public String getSquareString() {
