@@ -40,7 +40,7 @@ public class SquareGenerator {
 		String str = "";
 		for(int i = 0; i < num; i++) {
 			for(int j = 0; j < num; j++) {
-				str += Format.justify('c',square[i][j], 4);
+				str += Format.justify('l',square[i][j], 4);
 			}
 			str += '\n';
 		}
