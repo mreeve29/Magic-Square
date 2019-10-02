@@ -47,7 +47,7 @@ public class CheckSquareDialog extends GBDialog {
 				if (Integer.parseInt(current.getText()) < 1) {
 					messageBox("Can't have negative numbers or zeros");
 				} else {
-					checkSquare();
+					checkSquare(getHighestTotal());
 				}
 			}
 		}
@@ -90,7 +90,7 @@ public class CheckSquareDialog extends GBDialog {
 			temp = addLabel(base, size + 2, bottom, 1, 1);
 			bottom++;
 			temp.setOpaque(true);
-			temp.setBackground(Color.RED);
+			temp.setBackground(Color.GREEN);
 			columnLabels[i] = temp;
 		}
 
@@ -100,7 +100,7 @@ public class CheckSquareDialog extends GBDialog {
 			temp = addLabel(base, top, size + 2, 1, 1);
 			top++;
 			temp.setOpaque(true);
-			temp.setBackground(Color.RED);
+			temp.setBackground(Color.GREEN);
 			rowLabels[i] = temp;
 		}
 
@@ -112,7 +112,7 @@ public class CheckSquareDialog extends GBDialog {
 				temp = addLabel(base, size + 2, size + 2, 1, 1);
 			}
 			temp.setOpaque(true);
-			temp.setBackground(Color.RED);
+			temp.setBackground(Color.GREEN);
 			diagonalLabels[i] = temp;
 		}
 		setWindowSize(size);
@@ -174,7 +174,8 @@ public class CheckSquareDialog extends GBDialog {
 		diagonalLabels = null;
 	}
 
-	private void checkSquare() {
+	
+	private void checkSquare(int high) {
 		int magicNum = getMagicNumber(comboSize);
 		// row checks
 		for (int i = 0; i < fieldArr.length; i++) {
@@ -239,24 +240,59 @@ public class CheckSquareDialog extends GBDialog {
 		return total;
 	}
 
-	private void updateTotalMagicLabel(JLabel label, int total, int magic) {
+	private void updateTotalLabel(JLabel label, int total, int magic) {
 		label.setText(Format.justify('c', total, 10));
-		if (total == magic) {
-			label.setBackground(Color.GREEN);
-		} else {
-			label.setBackground(Color.RED);
+		if(magic != getHighestTotal()) {
+			if (total == magic) {
+				label.setBackground(Color.GREEN);
+			} else {
+				label.setBackground(Color.RED);
+			}
+		}
+		labelsEqualSame(getHighestTotal());
+	}
+	
+	private void labelsEqualSame(int total) {
+		System.out.println(total);
+		for(int i = 0; i < diagonalLabels.length; i++) {
+			if(Integer.parseInt(diagonalLabels[i].getText().trim()) == total) {
+				diagonalLabels[i].setBackground(Color.GREEN);
+			}
+		}
+		for(int i = 0; i < rowLabels.length; i++) {
+			if(Integer.parseInt(rowLabels[i].getText().trim()) == total) {
+				rowLabels[i].setBackground(Color.GREEN);
+			}
+		}
+		for(int i = 0; i < columnLabels.length; i++) {
+			if(Integer.parseInt(columnLabels[i].getText().trim()) == total) {
+				columnLabels[i].setBackground(Color.GREEN);
+			}
 		}
 	}
 	
-	private void updateTotalBaseLabel(JLabel label, int total) {
-		label.setText(Format.justify('c', total, 10));
-		if (total == magic) {
-			label.setBackground(Color.GREEN);
-		} else {
-			label.setBackground(Color.RED);
+	
+	private int getHighestTotal() {
+		int high = 0;
+		for(int i = 0; i < diagonalLabels.length; i++) {
+			if(Integer.parseInt(diagonalLabels[i].getText().trim()) > high) {
+				high = Integer.parseInt(diagonalLabels[i].getText().trim());
+			}
 		}
+		for(int i = 0; i < rowLabels.length; i++) {
+			if(Integer.parseInt(rowLabels[i].getText().trim()) > high) {
+				high = Integer.parseInt(rowLabels[i].getText().trim());
+			}
+		}
+		for(int i = 0; i < columnLabels.length; i++) {
+			if(Integer.parseInt(columnLabels[i].getText().trim()) > high) {
+				high = Integer.parseInt(columnLabels[i].getText().trim());
+			}
+		}
+		return high;
 	}
-
+	
+	
 	private int getMagicNumber(int x) {
 		int high = x * x;
 		int low = 1;
