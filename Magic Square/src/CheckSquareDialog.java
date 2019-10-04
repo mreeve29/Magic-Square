@@ -46,8 +46,9 @@ public class CheckSquareDialog extends GBDialog {
 			if (ReeveHelper.isValidNumber(current)) {
 				if (Integer.parseInt(current.getText()) < 1) {
 					messageBox("Can't have negative numbers or zeros");
+					current.selectAll();
 				} else {
-					checkSquare(getHighestTotal());
+					checkSquare();
 				}
 			}
 		}
@@ -175,7 +176,7 @@ public class CheckSquareDialog extends GBDialog {
 	}
 
 	
-	private void checkSquare(int high) {
+	private void checkSquare() {
 		int magicNum = getMagicNumber(comboSize);
 		// row checks
 		for (int i = 0; i < fieldArr.length; i++) {
@@ -207,6 +208,8 @@ public class CheckSquareDialog extends GBDialog {
 
 		updateTotalLabel(diagonalLabels[1], diagTopLeftBottomRightTotal, magicNum);
 		updateTotalLabel(diagonalLabels[0], diagBottomLeftTopRightTotal, magicNum);
+		
+		highlightHighestLabels();
 
 	}
 
@@ -242,14 +245,30 @@ public class CheckSquareDialog extends GBDialog {
 
 	private void updateTotalLabel(JLabel label, int total, int magic) {
 		label.setText(Format.justify('c', total, 10));
-		if(magic != getHighestTotal()) {
-			if (total == magic) {
-				label.setBackground(Color.GREEN);
-			} else {
-				label.setBackground(Color.RED);
+		if (total == magic && getHighestTotal() <= magic) {
+			label.setBackground(Color.GREEN);
+		} else {
+			label.setBackground(Color.RED);
+		}
+	}
+	
+	private void highlightHighestLabels() {
+		int high = getHighestTotal();
+		for(int i = 0; i < diagonalLabels.length; i++) {
+			if(Integer.parseInt(diagonalLabels[i].getText().trim()) == high) {
+				diagonalLabels[i].setBackground(Color.GREEN);
 			}
 		}
-		labelsEqualSame(getHighestTotal());
+		for(int i = 0; i < rowLabels.length; i++) {
+			if(Integer.parseInt(rowLabels[i].getText().trim()) == high) {
+				rowLabels[i].setBackground(Color.GREEN);
+			}
+		}
+		for(int i = 0; i < columnLabels.length; i++) {
+			if(Integer.parseInt(columnLabels[i].getText().trim()) == high) {
+				columnLabels[i].setBackground(Color.GREEN);
+			}
+		}
 	}
 	
 	private void labelsEqualSame(int total) {
@@ -274,11 +293,6 @@ public class CheckSquareDialog extends GBDialog {
 	
 	private int getHighestTotal() {
 		int high = 0;
-		for(int i = 0; i < diagonalLabels.length; i++) {
-			if(Integer.parseInt(diagonalLabels[i].getText().trim()) > high) {
-				high = Integer.parseInt(diagonalLabels[i].getText().trim());
-			}
-		}
 		for(int i = 0; i < rowLabels.length; i++) {
 			if(Integer.parseInt(rowLabels[i].getText().trim()) > high) {
 				high = Integer.parseInt(rowLabels[i].getText().trim());
@@ -287,6 +301,11 @@ public class CheckSquareDialog extends GBDialog {
 		for(int i = 0; i < columnLabels.length; i++) {
 			if(Integer.parseInt(columnLabels[i].getText().trim()) > high) {
 				high = Integer.parseInt(columnLabels[i].getText().trim());
+			}
+		}
+		for(int i = 0; i < diagonalLabels.length; i++) {
+			if(Integer.parseInt(diagonalLabels[i].getText().trim()) > high) {
+				high = Integer.parseInt(diagonalLabels[i].getText().trim());
 			}
 		}
 		return high;
