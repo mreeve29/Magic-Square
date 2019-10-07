@@ -2,11 +2,13 @@ import BreezySwing.Format;
 
 public class SquareGenerator {
 	private int num;
+	private int start;
 	private int[][] square;
 	
-	public SquareGenerator(int x) {
-		num = x;
-		square = new int[x][x];
+	public SquareGenerator(int size, int start) {
+		num = size;
+		square = new int[size][size];
+		this.start = start;
 		populateIntArr();
 	}
 	
@@ -15,7 +17,7 @@ public class SquareGenerator {
 		int y = num/2;
 		for(int i = 0; i < num*num; i++) {
 			if(i == 0) {
-				square[x][y] = i+1;
+				square[x][y] = i+start;
 				continue;
 			}
 			if(x == 0 && y == num-1) {
@@ -32,7 +34,7 @@ public class SquareGenerator {
 				x-=1;
 				y+=1;
 			}
-			square[x][y] = i+1;
+			square[x][y] = i+start;
 		}
 	}
 	

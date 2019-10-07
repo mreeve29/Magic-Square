@@ -1,6 +1,11 @@
 import BreezySwing.*;
 
 import java.awt.Color;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -8,9 +13,12 @@ import javax.swing.*;
 
 public class CheckSquareDialog extends GBDialog {
 
+	//buttons
 	JComboBox sizeCombo = addComboBox(1, 1, 1, 1);
-	JButton buildButton = addButton("Build", 2, 1, 1, 1);
-	JTextField[][] fieldArr;
+	JButton buildButton = addButton("Build/Reset", 2, 1, 1, 1);
+	
+	//array of TextFields for input
+	IntegerField[][] fieldArr;
 
 	JLabel[] rowLabels;
 	JLabel[] columnLabels;
@@ -20,17 +28,20 @@ public class CheckSquareDialog extends GBDialog {
 
 	public void buttonClicked(JButton button) {
 		if (button == buildButton) {
+			boolean reset = true;
 			String s = (String) sizeCombo.getSelectedItem();
 			if (Character.getNumericValue(s.charAt(0)) == comboSize) {
-				return;
+				this.setSize(this.getSize().width+1,this.getSize().height+1);
 			}
 			resetTable();
 			comboSize = Character.getNumericValue(s.charAt(0));
 			initalizeArray(comboSize);
 		}
 	}
+	
+	
 
-	private KeyListener textFieldKL = new KeyListener() {
+	private KeyListener intFieldKL = new KeyListener() {
 
 		@Override
 		public void keyTyped(KeyEvent e) {
@@ -42,17 +53,43 @@ public class CheckSquareDialog extends GBDialog {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			JTextField current = (JTextField) e.getSource();
+			IntegerField current = (IntegerField) e.getSource();
+			if(current.getText().isBlank())return;
+			if(!validateFields())return;
 			if (ReeveHelper.isValidNumber(current)) {
-				if (Integer.parseInt(current.getText()) < 1) {
-					messageBox("Can't have negative numbers or zeros");
+				if (current.getNumber() < 0) {
+					messageBox("Can't have negative numbers");
 					current.selectAll();
 				} else {
-					checkSquare();
+					boolean validSquare = checkSquare();
+					if(validSquare && getHighestTotal() == getMagicNumber(comboSize)) {
+						messageBox("Congrats! You have made a valid magic square!\n"
+								+ "Magic Number: " + getMagicNumber(comboSize));
+					}else if (validSquare) {
+						messageBox("Congrats! All of the rows, columns and diagonals add up to eachother!");
+					}
 				}
+			}else {
+				messageBox("Numbers only please");
 			}
 		}
 
+	};
+	
+	
+	private FocusListener intFieldFL = new FocusListener() {
+
+		@Override
+		public void focusGained(FocusEvent e) {
+			if(e.getSource() instanceof IntegerField) {
+				IntegerField field = (IntegerField)e.getSource();
+				field.selectAll();
+			}
+		}
+
+		@Override
+		public void focusLost(FocusEvent e) {}
+		
 	};
 
 	public CheckSquareDialog(JFrame parent) {
@@ -65,17 +102,18 @@ public class CheckSquareDialog extends GBDialog {
 		initalizeArray(2);
 		this.setResizable(false);
 		this.setTitle("Square Checker");
-		this.setSize(323, 195);
+		this.setSize(363, 235);
 		this.setVisible(true);
 	}
 
 	private void initalizeArray(int size) {
 		// TextFields
-		fieldArr = new JTextField[size][size];
+		fieldArr = new IntegerField[size][size];
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				JTextField temp = addTextField("", j + 2, i + 2, 1, 1);
-				temp.addKeyListener(textFieldKL);
+				IntegerField temp = addIntegerField(0, j + 2, i + 2, 1, 1);
+				temp.addKeyListener(intFieldKL);
+				temp.addFocusListener(intFieldFL);
 				fieldArr[i][j] = temp;
 			}
 		}
@@ -122,28 +160,28 @@ public class CheckSquareDialog extends GBDialog {
 	private void setWindowSize(int size) {
 		switch (size) {
 		case 2:
-			this.setSize(323, 195);
+			this.setSize(363, 235);
 			break;
 		case 3:
-			this.setSize(331, 217);
+			this.setSize(371, 257);
 			break;
 		case 4:
-			this.setSize(341, 235);
+			this.setSize(381, 275);
 			break;
 		case 5:
-			this.setSize(382, 281);
+			this.setSize(434, 344);
 			break;
 		case 6:
-			this.setSize(408, 314);
+			this.setSize(486, 383);
 			break;
 		case 7:
-			this.setSize(434, 342);
+			this.setSize(534, 414);
 			break;
 		case 8:
-			this.setSize(488, 368);
+			this.setSize(593, 463);
 			break;
 		default:
-			this.setSize(323, 195);
+			this.setSize(383, 225);
 			break;
 		}
 
@@ -165,10 +203,12 @@ public class CheckSquareDialog extends GBDialog {
 			remove(columnLabels[i]);
 		}
 		columnLabels = null;
+		
 		for (int i = 0; i < rowLabels.length; i++) {
 			remove(rowLabels[i]);
 		}
 		rowLabels = null;
+		
 		for (int i = 0; i < diagonalLabels.length; i++) {
 			remove(diagonalLabels[i]);
 		}
@@ -176,17 +216,19 @@ public class CheckSquareDialog extends GBDialog {
 	}
 
 	
-	private void checkSquare() {
-		int magicNum = getMagicNumber(comboSize);
+	private boolean checkSquare() {
+		boolean correctSquare = true;
 		// row checks
 		for (int i = 0; i < fieldArr.length; i++) {
 			int total = 0;
 			for (int j = 0; j < fieldArr.length; j++) {
 				String text = fieldArr[j][i].getText();
 				if (!text.isEmpty() && ReeveHelper.isValidNumber(fieldArr[j][i])) {
-					total += Integer.parseInt(fieldArr[j][i].getText());
+					total += fieldArr[j][i].getNumber();
 				}
-				updateTotalLabel(rowLabels[i], total, magicNum);
+			}
+			if(!checkLabel(rowLabels[i],total)) {
+				correctSquare = false;
 			}
 		}
 
@@ -196,9 +238,11 @@ public class CheckSquareDialog extends GBDialog {
 			for (int j = 0; j < fieldArr.length; j++) {
 				String text = fieldArr[i][j].getText();
 				if (!text.isEmpty() && ReeveHelper.isValidNumber(fieldArr[i][j])) {
-					total += Integer.parseInt(fieldArr[i][j].getText());
+					total += fieldArr[i][j].getNumber();
 				}
-				updateTotalLabel(columnLabels[i], total, magicNum);
+			}
+			if(!checkLabel(columnLabels[i],total)) {
+				correctSquare = false;
 			}
 		}
 
@@ -206,11 +250,67 @@ public class CheckSquareDialog extends GBDialog {
 		int diagTopLeftBottomRightTotal = getTotalDiag(1);
 		int diagBottomLeftTopRightTotal = getTotalDiag(2);
 
-		updateTotalLabel(diagonalLabels[1], diagTopLeftBottomRightTotal, magicNum);
-		updateTotalLabel(diagonalLabels[0], diagBottomLeftTopRightTotal, magicNum);
+		if(!checkLabel(diagonalLabels[1],diagTopLeftBottomRightTotal)) {
+			correctSquare = false;
+		}
+		if(!checkLabel(diagonalLabels[0],diagBottomLeftTopRightTotal)) {
+			correctSquare = false;
+		}
 		
-		highlightHighestLabels();
+		return correctSquare;
+	}
 
+	private boolean checkLabel(JLabel label, int total) {
+		label.setText(Format.justify('c', total, 10));
+		int high = getHighestTotal();
+	
+		if((total == high)) {
+			//correct label
+			label.setBackground(Color.GREEN);
+			return true;
+		}else {
+			//incorrect label
+			label.setBackground(Color.RED);
+			return false;
+		}
+		
+	}
+	
+	private boolean validateFields() {
+		boolean valid = true;
+		for(int i = 0; i < fieldArr.length; i++) {
+			for(int j = 0; j < fieldArr.length; j++) {
+				if(!ReeveHelper.isValidNumber(fieldArr[i][j])) {
+					messageBox("invalid input in column " + (i+1) + " row " + (j+1));
+					fieldArr[i][j].requestFocusInWindow();
+					fieldArr[i][j].selectAll();
+					valid = false;
+					setAllLabelsError();
+				}
+			}
+		}
+		return valid;
+	}
+	
+	
+	private void setAllLabelsError() {
+		for(int i = 0; i < rowLabels.length; i++) {
+			rowLabels[i].setText("Error");
+			rowLabels[i].setBackground(Color.RED);
+		}
+		
+		for(int i = 0; i < columnLabels.length; i++) {
+			columnLabels[i].setText("Error");
+			columnLabels[i].setBackground(Color.RED);
+		}
+		
+		diagonalLabels[0].setText("Error");
+		diagonalLabels[0].setBackground(Color.RED);
+		
+		diagonalLabels[1].setText("Error");
+		diagonalLabels[1].setBackground(Color.RED);
+		
+		
 	}
 
 	private int getTotalDiag(int type) {
@@ -221,7 +321,7 @@ public class CheckSquareDialog extends GBDialog {
 			while (x < comboSize && y < comboSize) {
 				String text = fieldArr[x][y].getText();
 				if (!text.isEmpty()) {
-					total += Integer.parseInt(text);
+					total += fieldArr[x][y].getNumber();
 				}
 				x++;
 				y++;
@@ -232,7 +332,7 @@ public class CheckSquareDialog extends GBDialog {
 			while (x >= 0 && y < comboSize) {
 				String text = fieldArr[x][y].getText();
 				if (!text.isEmpty()) {
-					total += Integer.parseInt(text);
+					total += fieldArr[x][y].getNumber();
 				}
 				x--;
 				y++;
@@ -242,72 +342,56 @@ public class CheckSquareDialog extends GBDialog {
 		}
 		return total;
 	}
-
-	private void updateTotalLabel(JLabel label, int total, int magic) {
-		label.setText(Format.justify('c', total, 10));
-		if (total == magic && getHighestTotal() <= magic) {
-			label.setBackground(Color.GREEN);
-		} else {
-			label.setBackground(Color.RED);
+	
+	private int getRowTotal() {
+		int total = 0;
+		int high = 0;
+		for (int i = 0; i < fieldArr.length; i++) {
+			for (int j = 0; j < fieldArr.length; j++) {
+				String text = fieldArr[j][i].getText();
+				if (!text.isEmpty() && ReeveHelper.isValidNumber(fieldArr[j][i])) {
+					total += fieldArr[j][i].getNumber();
+				}
+			}
+			if(total > high)high = total;
+			total = 0;
 		}
+		return high;
 	}
 	
-	private void highlightHighestLabels() {
-		int high = getHighestTotal();
-		for(int i = 0; i < diagonalLabels.length; i++) {
-			if(Integer.parseInt(diagonalLabels[i].getText().trim()) == high) {
-				diagonalLabels[i].setBackground(Color.GREEN);
+	private int getColumnTotal() {
+		int total = 0;
+		int high = 0;
+		for (int i = 0; i < fieldArr.length; i++) {
+			for (int j = 0; j < fieldArr.length; j++) {
+				String text = fieldArr[i][j].getText();
+				if (!text.isEmpty() && ReeveHelper.isValidNumber(fieldArr[i][j])) {
+					total += fieldArr[i][j].getNumber();
+				}
 			}
+			if(total > high)high = total;
+			total = 0;
 		}
-		for(int i = 0; i < rowLabels.length; i++) {
-			if(Integer.parseInt(rowLabels[i].getText().trim()) == high) {
-				rowLabels[i].setBackground(Color.GREEN);
-			}
-		}
-		for(int i = 0; i < columnLabels.length; i++) {
-			if(Integer.parseInt(columnLabels[i].getText().trim()) == high) {
-				columnLabels[i].setBackground(Color.GREEN);
-			}
-		}
-	}
-	
-	private void labelsEqualSame(int total) {
-		System.out.println(total);
-		for(int i = 0; i < diagonalLabels.length; i++) {
-			if(Integer.parseInt(diagonalLabels[i].getText().trim()) == total) {
-				diagonalLabels[i].setBackground(Color.GREEN);
-			}
-		}
-		for(int i = 0; i < rowLabels.length; i++) {
-			if(Integer.parseInt(rowLabels[i].getText().trim()) == total) {
-				rowLabels[i].setBackground(Color.GREEN);
-			}
-		}
-		for(int i = 0; i < columnLabels.length; i++) {
-			if(Integer.parseInt(columnLabels[i].getText().trim()) == total) {
-				columnLabels[i].setBackground(Color.GREEN);
-			}
-		}
+		return high;
 	}
 	
 	
 	private int getHighestTotal() {
 		int high = 0;
-		for(int i = 0; i < rowLabels.length; i++) {
-			if(Integer.parseInt(rowLabels[i].getText().trim()) > high) {
-				high = Integer.parseInt(rowLabels[i].getText().trim());
-			}
+		int rowTotal, columnTotal, diagonalTotal;
+		
+		rowTotal = getRowTotal();
+		columnTotal = getColumnTotal();
+		
+		if(getTotalDiag(1) > getTotalDiag(2)) {
+			diagonalTotal = getTotalDiag(1);
+		}else {
+			diagonalTotal = getTotalDiag(2);
 		}
-		for(int i = 0; i < columnLabels.length; i++) {
-			if(Integer.parseInt(columnLabels[i].getText().trim()) > high) {
-				high = Integer.parseInt(columnLabels[i].getText().trim());
-			}
-		}
-		for(int i = 0; i < diagonalLabels.length; i++) {
-			if(Integer.parseInt(diagonalLabels[i].getText().trim()) > high) {
-				high = Integer.parseInt(diagonalLabels[i].getText().trim());
-			}
-		}
+		
+		if(rowTotal > high)high = rowTotal;
+		if(columnTotal > high)high = columnTotal;
+		if(diagonalTotal > high)high = diagonalTotal;
 		return high;
 	}
 	
@@ -329,5 +413,3 @@ public class CheckSquareDialog extends GBDialog {
 	}
 
 }
-
-//nice
