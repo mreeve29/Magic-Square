@@ -3,6 +3,7 @@ import javax.swing.*;
 
 public class MagicSquareGUI extends GBFrame{
 
+	//instance objects
 	JButton generateSquareButton = addButton("Generate Square",1,1,1,1);
 	JButton checkSquareButton = addButton("Check Square",2,1,1,1);
 	
@@ -14,7 +15,6 @@ public class MagicSquareGUI extends GBFrame{
 		}
 	}
 	
-
 	public static void main(String[] args) {
 		MagicSquareGUI frm = new MagicSquareGUI();
 		frm.setVisible(true);
@@ -23,4 +23,3 @@ public class MagicSquareGUI extends GBFrame{
 	}
 
 }
-//comment

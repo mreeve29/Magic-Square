@@ -1,9 +1,6 @@
 import BreezySwing.*;
 
 import java.awt.Color;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
@@ -14,8 +11,8 @@ import javax.swing.*;
 public class CheckSquareDialog extends GBDialog {
 
 	//buttons
-	JComboBox sizeCombo = addComboBox(1, 1, 1, 1);
-	JButton buildButton = addButton("Build/Reset", 2, 1, 1, 1);
+	private JComboBox sizeCombo = addComboBox(1, 1, 1, 1);
+	private JButton buildButton = addButton("Build/Reset", 2, 1, 1, 1);
 	
 	//array of TextFields for input
 	IntegerField[][] fieldArr;
@@ -24,6 +21,7 @@ public class CheckSquareDialog extends GBDialog {
 	JLabel[] columnLabels;
 	JLabel[] diagonalLabels;
 
+	//default size to 2x2
 	private int comboSize = 2;
 
 	public void buttonClicked(JButton button) {
@@ -31,6 +29,7 @@ public class CheckSquareDialog extends GBDialog {
 			boolean reset = true;
 			String s = (String) sizeCombo.getSelectedItem();
 			if (Character.getNumericValue(s.charAt(0)) == comboSize) {
+				//adjusts size by 1 because integer fields won't update without changing the size
 				this.setSize(this.getSize().width+1,this.getSize().height+1);
 			}
 			resetTable();
@@ -39,17 +38,14 @@ public class CheckSquareDialog extends GBDialog {
 		}
 	}
 	
-	
-
+	//event listener for integer fields for auto updating / checking
 	private KeyListener intFieldKL = new KeyListener() {
 
 		@Override
-		public void keyTyped(KeyEvent e) {
-		}
+		public void keyTyped(KeyEvent e) {}
 
 		@Override
-		public void keyPressed(KeyEvent e) {
-		}
+		public void keyPressed(KeyEvent e) {}
 
 		@Override
 		public void keyReleased(KeyEvent e) {
@@ -76,7 +72,7 @@ public class CheckSquareDialog extends GBDialog {
 
 	};
 	
-	
+	//event listener that selects number in field when focus is gained
 	private FocusListener intFieldFL = new FocusListener() {
 
 		@Override
@@ -92,6 +88,7 @@ public class CheckSquareDialog extends GBDialog {
 		
 	};
 
+	//constructor
 	public CheckSquareDialog(JFrame parent) {
 		super(parent);
 		for (int i = 2; i <= 8; i++) {
@@ -99,6 +96,7 @@ public class CheckSquareDialog extends GBDialog {
 			sizeCombo.addItem(size);
 		}
 
+		//default to 2
 		initalizeArray(2);
 		this.setResizable(false);
 		this.setTitle("Square Checker");
@@ -106,6 +104,7 @@ public class CheckSquareDialog extends GBDialog {
 		this.setVisible(true);
 	}
 
+	//set up 2D array and label arrays
 	private void initalizeArray(int size) {
 		// TextFields
 		fieldArr = new IntegerField[size][size];
@@ -123,6 +122,8 @@ public class CheckSquareDialog extends GBDialog {
 		rowLabels = new JLabel[size];
 		columnLabels = new JLabel[size];
 		diagonalLabels = new JLabel[2];
+
+		//set up column labels
 		int bottom = 2;
 		for (int i = 0; i < columnLabels.length; i++) {
 			JLabel temp = null;
@@ -133,6 +134,7 @@ public class CheckSquareDialog extends GBDialog {
 			columnLabels[i] = temp;
 		}
 
+		//set up row labels
 		int top = 2;
 		for (int i = 0; i < rowLabels.length; i++) {
 			JLabel temp = null;
@@ -143,6 +145,7 @@ public class CheckSquareDialog extends GBDialog {
 			rowLabels[i] = temp;
 		}
 
+		//set up diagonal labels
 		for (int i = 0; i < diagonalLabels.length; i++) {
 			JLabel temp = null;
 			if (i == 0) {
@@ -215,7 +218,7 @@ public class CheckSquareDialog extends GBDialog {
 		diagonalLabels = null;
 	}
 
-	
+	//checks if square is a valid square and if it is a magic square
 	private boolean checkSquare() {
 		boolean correctSquare = true;
 		// row checks
@@ -260,6 +263,7 @@ public class CheckSquareDialog extends GBDialog {
 		return correctSquare;
 	}
 
+	//sets label's color
 	private boolean checkLabel(JLabel label, int total) {
 		label.setText(Format.justify('c', total, 10));
 		int high = getHighestTotal();
@@ -276,12 +280,14 @@ public class CheckSquareDialog extends GBDialog {
 		
 	}
 	
+	//checks if all fields are valid
 	private boolean validateFields() {
 		boolean valid = true;
+		String error = "";
 		for(int i = 0; i < fieldArr.length; i++) {
 			for(int j = 0; j < fieldArr.length; j++) {
 				if(!ReeveHelper.isValidNumber(fieldArr[i][j])) {
-					messageBox("invalid input in column " + (i+1) + " row " + (j+1));
+					error += "invalid input in column " + (i+1) + " row " + (j+1) + '\n';
 					fieldArr[i][j].requestFocusInWindow();
 					fieldArr[i][j].selectAll();
 					valid = false;
@@ -289,10 +295,13 @@ public class CheckSquareDialog extends GBDialog {
 				}
 			}
 		}
+		if(!valid) {
+			messageBox(error);
+		}
 		return valid;
 	}
 	
-	
+	//if user enters invalid character, this method will be called to set all of the labels to "error" and red
 	private void setAllLabelsError() {
 		for(int i = 0; i < rowLabels.length; i++) {
 			rowLabels[i].setText("Error");
@@ -313,7 +322,11 @@ public class CheckSquareDialog extends GBDialog {
 		
 	}
 
+	//gets the sum of diagonals
 	private int getTotalDiag(int type) {
+		//type:
+		//1 --> top left to bottom right
+		//2 --> bottom left to top right
 		int total = 0;
 		if (type == 1) {
 			int x = 0;
@@ -343,6 +356,7 @@ public class CheckSquareDialog extends GBDialog {
 		return total;
 	}
 	
+	//gets the highest sum out of the rows
 	private int getRowTotal() {
 		int total = 0;
 		int high = 0;
@@ -359,6 +373,7 @@ public class CheckSquareDialog extends GBDialog {
 		return high;
 	}
 	
+	//gets the highest sum out of the columns
 	private int getColumnTotal() {
 		int total = 0;
 		int high = 0;
@@ -375,7 +390,7 @@ public class CheckSquareDialog extends GBDialog {
 		return high;
 	}
 	
-	
+	//gets the highest total of rows/columns/diagonals
 	private int getHighestTotal() {
 		int high = 0;
 		int rowTotal, columnTotal, diagonalTotal;
@@ -395,7 +410,8 @@ public class CheckSquareDialog extends GBDialog {
 		return high;
 	}
 	
-	
+	//gets magic number for a given size
+	//ex. 3 --> 15
 	private int getMagicNumber(int x) {
 		int high = x * x;
 		int low = 1;
@@ -413,4 +429,3 @@ public class CheckSquareDialog extends GBDialog {
 	}
 
 }
-//comment
