@@ -50,7 +50,7 @@ public class CheckSquareDialog extends GBDialog {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			IntegerField current = (IntegerField) e.getSource();
-			if(current.getText().isBlank())return;
+			if(current.getText().isEmpty())return;
 			if(!validateFields())return;
 			if (ReeveHelper.isValidNumber(current)) {
 				if (current.getNumber() < 0) {
@@ -62,7 +62,8 @@ public class CheckSquareDialog extends GBDialog {
 						messageBox("Congrats! You have made a valid magic square!\n"
 								+ "Magic Number: " + getMagicNumber(comboSize));
 					}else if (validSquare) {
-						messageBox("Congrats! All of the rows, columns and diagonals add up to eachother!");
+						messageBox("Congrats! All of the rows, columns and diagonals add up to eachother!\n"
+								+ "Magic Constant: " + getHighestTotal());
 					}
 				}
 			}else {
@@ -289,6 +290,12 @@ public class CheckSquareDialog extends GBDialog {
 				if(!ReeveHelper.isValidNumber(fieldArr[i][j])) {
 					error += "invalid input in column " + (i+1) + " row " + (j+1) + '\n';
 					fieldArr[i][j].requestFocusInWindow();
+					fieldArr[i][j].selectAll();
+					valid = false;
+					setAllLabelsError();
+				}
+				if(ReeveHelper.isNegative(fieldArr[i][j])) {
+					error+= "negative number in column" + (i+1) + " row " + (j+1) + '\n';
 					fieldArr[i][j].selectAll();
 					valid = false;
 					setAllLabelsError();
